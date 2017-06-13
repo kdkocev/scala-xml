@@ -36,7 +36,8 @@ object Node {
 abstract class Node extends NodeSeq {
 
   /** prefix of this node */
-  def prefix: String = null
+  // TODO: remove default value. It should be set in children
+  def prefix: Option[String] = None
 
   /** label of this node. I.e. "foo" for &lt;foo/&gt;) */
   def label: String
@@ -47,6 +48,7 @@ abstract class Node extends NodeSeq {
   def isAtom = this.isInstanceOf[Atom[_]]
 
   /** The logic formerly found in typeTag$, as best I could infer it. */
+  // TODO: understand the logic behind this. Why is it def? why is it a constant?
   def doCollectNamespaces = true // if (tag >= 0) DO collect namespaces
   def doTransform = true // if (tag < 0) DO NOT transform
 
@@ -55,12 +57,17 @@ abstract class Node extends NodeSeq {
    *  is TopScope, which means there are no namespace bindings except the
    *  predefined one for "xml".
    */
+  // TODO: change this type to Option[] with no default value
   def scope: NamespaceBinding = TopScope
 
   /**
    *  convenience, same as `getNamespace(this.prefix)`
    */
-  def namespace = getNamespace(this.prefix)
+  // TODO: fix this when you fix namespaces
+  def namespace = this.prefix match {
+    case Some(pre)  => getNamespace(pre)
+    case None       => getNamespace(null)
+  }
 
   /**
    * Convenience method, same as `scope.getURI(pre)` but additionally
@@ -113,6 +120,7 @@ abstract class Node extends NodeSeq {
   /**
    * Children which do not stringify to "" (needed for equality)
    */
+  // TODO: can we have a different check for non-empty children?
   def nonEmptyChildren: Seq[Node] = child filterNot (_.toString == "")
 
   /**
@@ -126,6 +134,7 @@ abstract class Node extends NodeSeq {
    * Descendant axis (all descendants of this node, including thisa node)
    * includes all text nodes, element nodes, comments and processing instructions.
    */
+  // TODO: only used in one place
   def descendant_or_self: List[Node] = this :: descendant
 
   override def canEqual(other: Any) = other match {
@@ -143,6 +152,7 @@ abstract class Node extends NodeSeq {
       (prefix == x.prefix) &&
         (label == x.label) &&
         (attributes == x.attributes) &&
+        // TODO: check xml spec if we should compare scopes
         // (scope == x.scope)               // note - original code didn't compare scopes so I left it as is.
         (nonEmptyChildren sameElements x.nonEmptyChildren)
     case _ =>

@@ -26,6 +26,7 @@ abstract class ValidatingMarkupHandler extends MarkupHandler {
   override def endDTD(n: String) = {
     rootLabel = n
   }
+  // TODO: do I have to change these?
   override def elemStart(pos: Int, pre: String, label: String, attrs: MetaData, scope: NamespaceBinding) {
 
     def advanceDFA(dm: DFAContentModel) = {

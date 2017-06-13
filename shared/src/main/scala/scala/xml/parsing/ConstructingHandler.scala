@@ -21,7 +21,10 @@ abstract class ConstructingHandler extends MarkupHandler {
 
   def elem(pos: Int, pre: String, label: String, attrs: MetaData,
            pscope: NamespaceBinding, empty: Boolean, nodes: NodeSeq): NodeSeq =
-    Elem(pre, label, attrs, pscope, empty, nodes: _*)
+    if(pre == null)
+      Elem(None, label, attrs, pscope, empty, nodes: _*)
+    else
+      Elem(Some(pre), label, attrs, pscope, empty, nodes: _*)
 
   def procInstr(pos: Int, target: String, txt: String) =
     ProcInstr(target, txt)

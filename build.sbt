@@ -18,7 +18,7 @@ lazy val root = project.in(file("."))
 lazy val xml = crossProject.in(file("."))
   .settings(
     name    := "scala-xml",
-    version := "1.0.7-SNAPSHOT",
+    version := "1.0.7-local-SNAPSHOT",
     scalacOptions         ++= "-deprecation:false -feature -Xlint:-stars-align,-nullary-unit,_".split("\\s+").to[Seq],
     scalacOptions in Test  += "-Xxml:coalescing",
     apiMappings ++= Map(
@@ -49,7 +49,7 @@ lazy val xml = crossProject.in(file("."))
           exclude[IncompatibleResultTypeProblem]("scala.xml.parsing.FactoryAdapter.tagStack")
         )
       },
-      mimaPreviousVersion := Some("1.0.6")): _*)
+      mimaPreviousVersion := None): _*)
   .jsConfigure(_.enablePlugins(ScalaJSJUnitPlugin))
 
 lazy val xmlJVM = xml.jvm

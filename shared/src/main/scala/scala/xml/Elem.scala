@@ -27,10 +27,10 @@ object Elem {
    *             can specify your own preference for minimizeEmpty.
    */
   @deprecated("Use the other apply method in this object", "2.10.0")
-  def apply(prefix: String, label: String, attributes: MetaData, scope: NamespaceBinding, child: Node*): Elem =
+  def apply(prefix: Option[String], label: String, attributes: MetaData, scope: NamespaceBinding, child: Node*): Elem =
     apply(prefix, label, attributes, scope, child.isEmpty, child: _*)
 
-  def apply(prefix: String, label: String, attributes: MetaData, scope: NamespaceBinding, minimizeEmpty: Boolean, child: Node*): Elem =
+  def apply(prefix: Option[String], label: String, attributes: MetaData, scope: NamespaceBinding, minimizeEmpty: Boolean, child: Node*): Elem =
     new Elem(prefix, label, attributes, scope, minimizeEmpty, child: _*)
 
   def unapplySeq(n: Node) = n match {
@@ -81,25 +81,23 @@ object Elem {
  *  @author Burak Emir <bqe@google.com>
  */
 class Elem(
-  override val prefix: String,
+  override val prefix: Option[String],
   val label: String,
-  attributes1: MetaData,
-  override val scope: NamespaceBinding,
+  attributes1: MetaData, // TODO: change this name and type
+  override val scope: NamespaceBinding, // TODO: change name and type
   val minimizeEmpty: Boolean,
   val child: Node*)
   extends Node with Serializable {
-  @deprecated("This constructor is retained for backward compatibility. Please use the primary constructor, which lets you specify your own preference for `minimizeEmpty`.", "2.10.0")
-  def this(prefix: String, label: String, attributes: MetaData, scope: NamespaceBinding, child: Node*) = {
-    this(prefix, label, attributes, scope, child.isEmpty, child: _*)
-  }
+// No backwards compatibility needed if we're making a breaking change
+//  @deprecated("This constructor is retained for backward compatibility. Please use the primary constructor, which lets you specify your own preference for `minimizeEmpty`.", "2.10.0")
+//  def this(prefix: String, label: String, attributes: MetaData, scope: NamespaceBinding, child: Node*) = {
+//    this(prefix, label, attributes, scope, child.isEmpty, child: _*)
+//  }
 
   final override def doCollectNamespaces = true
   final override def doTransform = true
 
   override val attributes = MetaData.normalize(attributes1, scope)
-
-  if (prefix == "")
-    throw new IllegalArgumentException("prefix of zero length, use null instead")
 
   if (scope == null)
     throw new IllegalArgumentException("scope is null, use scala.xml.TopScope for empty scope")
@@ -109,7 +107,7 @@ class Elem(
   //  cleaning adjacent text nodes if necessary
 
   override protected def basisForHashCode: Seq[Any] =
-    prefix :: label :: attributes :: child.toList
+    prefix.getOrElse(null) :: label :: attributes :: child.toList
 
   /**
    * Returns a new element with updated attributes, resolving namespace uris
@@ -128,7 +126,7 @@ class Elem(
    *  @return a new symbol with updated attributes
    */
   def copy(
-    prefix: String = this.prefix,
+    prefix: Option[String] = this.prefix,
     label: String = this.label,
     attributes: MetaData = this.attributes,
     scope: NamespaceBinding = this.scope,
